@@ -1580,7 +1580,7 @@ macro_rules! __pin_project_internal {
                 ),* )?]
                 [$(impl $($pinned_drop)*)?]
             ]
-            [data $($tt)*]
+            [parsed {}; projected {}; methods {}; $($tt)*]
         }
     };
     /////////////////////////
@@ -1588,7 +1588,8 @@ macro_rules! __pin_project_internal {
     (@struct=>parse;
         [info $([$($info_data:tt)*])*]
         [meta $([$($meta_data:tt)*])*]
-        [data
+        // structs don't do any push-down accumulation, currently
+        [parsed {$($_eout:tt)*}; projected {$($_pout:tt)*}; methods {$($_mout:tt)*};
             $(
                 $(#[$pin:ident])?
                 $field_vis:vis $field:ident: $field_ty:ty
@@ -1609,7 +1610,7 @@ macro_rules! __pin_project_internal {
     (@enum=>parse;
         [info $([$($info_data:tt)*])*]
         [meta $([$($meta_data:tt)*])*]
-        [data
+        [parsed {$($_eout:tt)*}; projected {$($_pout:tt)*}; methods {$($_mout:tt)*};
             $(
                 $(#[$variant_attrs:meta])*
                 $variant:ident $({
