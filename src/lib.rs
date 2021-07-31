@@ -602,17 +602,19 @@ macro_rules! __pin_project_internal {
         [$($def_generics:tt)*] [$($impl_generics:tt)*] [$($ty_generics:tt)*]
         [$(where $($where_clause:tt)*)?]
         [$(impl $($pinned_drop:tt)*)?]
-        {
+        [variants
             $(
-                $(#[$variant_attrs:meta])*
-                $variant:ident $({
+                [attrs $(#[$variant_attrs:meta])*]
+                [ident $variant:ident]
+                $([
                     $(
-                        $(#[$pin:ident])?
-                        $field:ident: $field_ty:ty
-                    ),+
-                })?
+                        [pin $(#[$pin:ident])?]
+                        [field_ty $field_ty:ty]
+                        [field $field:ident]
+                    )+
+                ])?
             ),+
-        }
+        ]
     ) => {
         $(#[$attrs])*
         $vis enum $ident $($def_generics)*
@@ -629,6 +631,7 @@ macro_rules! __pin_project_internal {
             ),+
         }
 
+        // proj_field_mut
         $crate::__pin_project_internal! { @callback_if;
             [conditional $($proj_mut_ident)?]
             [cb enum make_proj_ty]
@@ -1618,17 +1621,19 @@ macro_rules! __pin_project_internal {
         $crate::__pin_project_internal! { @enum=>internal;
             $([$($info_data)*])*
             $([$($meta_data)*])*
-            {
+            [variants
                 $(
-                    $(#[$variant_attrs])*
-                    $variant $({
+                    [attrs $(#[$variant_attrs])*]
+                    [ident $variant]
+                    $([
                         $(
-                            $(#[$pin])?
-                            $field: $field_ty
-                        ),+
-                    })?
+                            [pin $(#[$pin])?]
+                            [field_ty $field_ty]
+                            [field $field]
+                        )+
+                    ])?
                 ),+
-            }
+            ]
         }
     };
 }
