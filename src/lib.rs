@@ -471,16 +471,20 @@ macro_rules! __pin_project_internal {
                         ),+
                     }
                 }
-                $crate::__pin_project_internal! { @struct=>make_proj_replace_method;
-                    [$proj_vis]
-                    [$($proj_replace_ident)?][ProjectionReplace]
-                    [$($ty_generics)*]
-                    {
-                        $(
-                            $(#[$pin])?
-                            $field_vis $field
-                        ),+
-                    }
+                $crate::__pin_project_internal! { @callback_if;
+                    [conditional $($proj_replace_ident)?]
+                    [cb struct make_proj_replace_method]
+                    [args
+                        [$proj_vis]
+                        [ProjectionReplace]
+                        [$($ty_generics)*]
+                        {
+                            $(
+                                $(#[$pin])?
+                                $field_vis $field
+                            ),+
+                        }
+                    ]
                 }
             }
 
@@ -664,20 +668,23 @@ macro_rules! __pin_project_internal {
                         ),+
                     }
                 }
-                $crate::__pin_project_internal! { @enum=>make_proj_replace_method;
-                    [$proj_vis]
-                    [$($proj_replace_ident)?]
-                    [$($ty_generics)*]
-                    {
-                        $(
-                            $variant $({
-                                $(
-                                    $(#[$pin])?
-                                    $field
-                                ),+
-                            })?
-                        ),+
-                    }
+                $crate::__pin_project_internal! { @callback_if;
+                    [conditional $($proj_replace_ident)?]
+                    [cb enum make_proj_replace_method]
+                    [args
+                        [$proj_vis]
+                        [$($ty_generics)*]
+                        {
+                            $(
+                                $variant $({
+                                    $(
+                                        $(#[$pin])?
+                                        $field
+                                    ),+
+                                })?
+                            ),+
+                        }
+                    ]
                 }
             }
 
@@ -1014,8 +1021,9 @@ macro_rules! __pin_project_internal {
     };
 
     (@struct=>make_proj_replace_method;
+        [$proj_ty_ident:ident]
         [$proj_vis:vis]
-        [$proj_ty_ident:ident][$_proj_ty_ident:ident]
+        [$_proj_ty_ident:ident]
         [$($ty_generics:tt)*]
         {
             $(
@@ -1052,14 +1060,6 @@ macro_rules! __pin_project_internal {
             }
         }
     };
-    (@struct=>make_proj_replace_method;
-        [$proj_vis:vis]
-        [][$proj_ty_ident:ident]
-        [$($ty_generics:tt)*]
-        $($variant:tt)*
-    ) => {
-    };
-
     // =============================================================================================
     // enum:make_proj_method
     (@enum=>make_proj_method;
@@ -1110,8 +1110,8 @@ macro_rules! __pin_project_internal {
     ) => {};
 
     (@enum=>make_proj_replace_method;
-        [$proj_vis:vis]
         [$proj_ty_ident:ident]
+        [$proj_vis:vis]
         [$($ty_generics:tt)*]
         {
             $(
@@ -1158,13 +1158,6 @@ macro_rules! __pin_project_internal {
             }
         }
     };
-    (@enum=>make_proj_replace_method;
-        [$proj_vis:vis]
-        []
-        [$($ty_generics:tt)*]
-        $($variant:tt)*
-    ) => {};
-
     // =============================================================================================
     // make_unpin_impl
     (@make_unpin_impl;
